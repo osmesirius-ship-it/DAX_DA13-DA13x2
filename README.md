@@ -8,3 +8,6 @@ DA-13 + DA-X Recursive Governance Core – the first working cognitive immune sy
 ## Testing
 - JavaScript SDK checks: `node tests/javascript/runDax.test.js`
 - Python SDK checks: `python -m unittest tests/python/test_run_dax.py`
+
+## Release
+See `docs/RELEASE.md` for the checklist to merge updates into `main`.
