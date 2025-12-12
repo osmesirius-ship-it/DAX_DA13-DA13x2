@@ -8,7 +8,7 @@ This guide packages the minimal code and step-by-step instructions required to l
 - **Execution loop**: Each layer receives the previous output, applies its role-specific prompt, and returns a stabilized string. The final output is emitted only after all layers are stable.
 
 ## Minimal Overlay Snippet (Browser / WebView)
-Embed this in any HTML surface to run the full stack. Replace `YOUR_XAI_API_KEY` with a secret provided via environment injection or server-side templating.
+Embed this in any HTML surface to run the full stack. Replace `YOUR_XAI_API_KEY` with a secret provided via environment injection or server-side templating. Layer prompts are pulled from `config/layers.json`, so you can adjust governance per domain without touching code.
 
 ```html
 <div id="dax-overlay">
@@ -17,31 +17,29 @@ Embed this in any HTML surface to run the full stack. Replace `YOUR_XAI_API_KEY`
   <pre id="dax-log">Ready.</pre>
 </div>
 <script>
-const layers = [
-  {id:13,name:"DA-13",desc:"Strategic intent & truth constraints",agent:"Sentinel",prompt:"Restate the mission in verifiable terms. Reject fabrication or unverifiable claims. Keep the core intent intact."},
-  {id:12,name:"DA-12",desc:"Meta-policy alignment",agent:"Chancellor",prompt:"Map the request to governing policies. If conflicts exist, resolve or re-scope to comply."},
-  {id:11,name:"DA-11",desc:"Risk appetite & escalation matrix",agent:"Custodian",prompt:"Re-score risk. Downgrade unsafe intents. Flag P0/P1 situations for human escalation only."},
-  {id:10,name:"DA-10",desc:"Mandate template registry",agent:"Registrar",prompt:"Choose the correct mandate template. Fill only required, in-scope fields. Do not invent data."},
-  {id:9,name:"DA-9",desc:"Policy-as-code validation",agent:"Verifier",prompt:"Lint against policy-as-code. Block disallowed operations and rephrase to stay inside guardrails."},
-  {id:8,name:"DA-8",desc:"Evidence trail attestation",agent:"Auditor",prompt:"Attach minimal evidence markers. Avoid PII or secrets. Prefer hashes or references over raw data."},
-  {id:7,name:"DA-7",desc:"Human-in-the-loop gates",agent:"Steward",prompt:"Decide if a human checkpoint is mandatory. Annotate why and what to review before proceeding."},
-  {id:6,name:"DA-6",desc:"Workflow orchestration",agent:"Conductor",prompt:"Decompose into ordered steps with prerequisites satisfied. Keep scope tight and efficient."},
-  {id:5,name:"DA-5",desc:"Execution adapter routing",agent:"Router",prompt:"Map steps to available tools/adapters. Avoid unsupported or risky actions; suggest safe alternatives."},
-  {id:4,name:"DA-4",desc:"Telemetry & feedback loop",agent:"Observer",prompt:"Request only essential telemetry. Exclude sensitive fields. Define concise success/failure signals."},
-  {id:3,name:"DA-3",desc:"Anomaly detection & drift alert",agent:"Sentry",prompt:"Scan for contradictions, bias, or drift. If detected, halt and call out the anomaly explicitly."},
-  {id:2,name:"DA-2",desc:"Structural self-audit",agent:"Inspector",prompt:"Check structure for coherence and completeness. Remove redundancy and tighten phrasing."},
-  {id:1,name:"DA-1",desc:"Terminal action emission",agent:"Executor",prompt:"Emit the final action text only. No meta-commentary. Keep instructions executable and concise."},
-  {id:"X",name:"DA-X",desc:"Recursive stability core",agent:"Anchor",prompt:"Perform a stability pass. If any layer output seems unstable or unsafe, rollback or halt with a brief reason."}
-];
+// fetch layer definitions from config to allow per-domain overrides
+async function loadLayers() {
+  const res = await fetch('/config/layers.json');
+  if (!res.ok) throw new Error('Unable to load layer config');
+  return res.json();
+}
 
-async function runDax(input) {
+async function runDax(input, { includeReasons = false } = {}) {
+  const layers = await loadLayers();
   let current = input;
+  const audit = [];
+
   for (const layer of layers) {
+    const instructions = includeReasons
+      ? `${layer.prompt}\nRespond as JSON with keys: output (stabilized text) and reason (brief audit note).`
+      : `${layer.prompt}\nRespond with only the stabilized text. No meta-commentary.`;
+
     const payload = {
       model: "grok-4",
-      messages: [{ role: "user", content: `You are ${layer.name} acting as ${layer.agent}.\nDuty: ${layer.desc}.\nAgent protocol: ${layer.prompt}\nPrior output:\n${current}\nApply your protocol and respond with only the improved, policy-safe text. No meta commentary.` }],
+      messages: [{ role: "user", content: `You are ${layer.name} acting as ${layer.agent}.\nDuty: ${layer.desc}.\nProtocol: ${instructions}\nPrior output:\n${current}` }],
       temperature: 0.2
     };
+
     const res = await fetch("https://api.x.ai/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -50,19 +48,28 @@ async function runDax(input) {
       },
       body: JSON.stringify(payload)
     });
+
     if (!res.ok) throw new Error(`Layer ${layer.name} failed: HTTP ${res.status}`);
     const data = await res.json();
-    current = data.choices[0].message.content.trim();
+    const reply = data.choices[0].message.content.trim();
+
+    if (includeReasons) {
+      const parsed = JSON.parse(reply);
+      current = (parsed.output || '').trim();
+      audit.push({ layer: layer.name, reason: parsed.reason || '' });
+    } else {
+      current = reply;
+    }
   }
-  return current;
+  return { output: current, audit };
 }
 
 document.getElementById("dax-run").onclick = async () => {
   const log = document.getElementById("dax-log");
   log.textContent = "Running...";
   try {
-    const output = await runDax(document.getElementById("dax-input").value.trim());
-    log.textContent = output;
+    const { output, audit } = await runDax(document.getElementById("dax-input").value.trim(), { includeReasons: true });
+    log.textContent = [output, "---", ...audit.map(a => `${a.layer}: ${a.reason || 'no reason provided'}`)].join("\n");
   } catch (err) {
     log.textContent = err.message;
   }
@@ -71,11 +78,71 @@ document.getElementById("dax-run").onclick = async () => {
 ```
 
 ### Notes for the overlay snippet
+- **Configurable prompts**: Adjust `config/layers.json` per domain; the overlay will pick up new prompts without code changes.
 - **CORS**: If the host does not return permissive CORS headers, route through a vetted proxy (e.g., codetabs.com or a self-hosted cors-anywhere) and restrict allowed origins.
 - **Secrets**: Do **not** hardcode keys. Inject via server-rendered templates, environment-derived meta tags, or a backend token exchange.
 - **Fallback models**: Add a retry path to Grok-3 or a cached response if `HTTP 429/5xx` occurs.
 
-### Layer-specific agents and protocols (14 total)
+## Configurable layer prompts
+- Default prompts live in `config/layers.json`.
+- Override prompts per deployment by shipping an environment-specific copy of the same JSON file (or by passing overrides to the SDKs below).
+- Keep IDs stable so traces and audits line up across domains.
+
+## Optional reason side-channel
+- Set `includeReasons: true` (browser snippet) or `include_reasons=True` (SDKs) to capture a lightweight `reason` string per layer for audit-only logs.
+- Parsed reasons do **not** alter the stabilized text; they are appended to the audit trace only.
+
+## SDK wrappers (pluggable transport + config overrides)
+Use these to call Dax from backends or agent pipelines without copy/pasting the overlay logic. Both expose `runDax`/`run_dax` and accept:
+- `layer_overrides`: dictionary keyed by layer id to swap prompts/agents/descriptions.
+- `transport`: custom function to plug in retries, proxies, or offline fakes. If omitted, a minimal fetch/urllib transport is used.
+- `includeReasons`/`include_reasons`: toggle the `reason` audit side-channel.
+
+### JavaScript (Node/Edge runtime)
+```js
+const path = require('path');
+const { createDaxRunner } = require('./sdk/javascript/runDax');
+
+const runner = createDaxRunner({
+  apiKey: process.env.XAI_API_KEY,
+  model: 'grok-4',
+  includeReasons: true,
+  layerOverrides: { 10: { prompt: 'Use fintech mandate template only.' } },
+  transport: async ({ apiKey, model, messages }) => {
+    // plug in your retry/backoff policy here
+    const res = await fetch('https://api.x.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({ model, messages, temperature: 0.2 }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return (await res.json()).choices[0].message.content.trim();
+  },
+});
+
+(async () => {
+  const { output, trace } = await runner.run('Stabilize this incident response plan.');
+  console.log(output);
+  console.table(trace);
+})();
+```
+
+### Python
+```python
+from sdk.python.run_dax import run_dax
+
+result = run_dax(
+    "Stabilize this incident response plan.",
+    api_key=os.environ["XAI_API_KEY"],
+    include_reasons=True,
+    layer_overrides={10: {"prompt": "Use fintech mandate template only."}},
+    transport=None,  # or inject a retrying transport
+)
+print(result["output"])
+print(result["trace"])
+```
+
+## Layer-specific agents and protocols (14 total)
 - **DA-13 — Sentinel:** Restate the mission in verifiable terms; reject fabrication or unverifiable claims; preserve core intent.
 - **DA-12 — Chancellor:** Map the request to governing policies; resolve conflicts or re-scope to comply.
 - **DA-11 — Custodian:** Re-score risk; downgrade unsafe intents; flag P0/P1 situations for human escalation.
@@ -115,6 +182,6 @@ document.getElementById("dax-run").onclick = async () => {
 - Sanitize and log inputs to support DA-8 evidence and incident reviews.
 
 ## Next Steps
-- Parameterize layer prompts via config to tailor governance per domain.
-- Add optional `reason` side-channel from each layer for audit-only logs.
-- Provide SDK wrappers (JavaScript/Python) that expose `runDax()` with pluggable transport and retry policies.
+- Add schema validation around `reason` responses to avoid malformed JSON from providers.
+- Publish quickstart unit tests that exercise the SDK transports and layer override paths.
+- Package a CLI wrapper that shells the SDKs and emits NDJSON traces for observability stacks.
