@@ -18,20 +18,20 @@ Embed this in any HTML surface to run the full stack. Replace `YOUR_XAI_API_KEY`
 </div>
 <script>
 const layers = [
-  {id:13,name:"DA-13",desc:"Strategic intent & truth constraints"},
-  {id:12,name:"DA-12",desc:"Meta-policy alignment"},
-  {id:11,name:"DA-11",desc:"Risk appetite & escalation matrix"},
-  {id:10,name:"DA-10",desc:"Mandate template registry"},
-  {id:9,name:"DA-9",desc:"Policy-as-code validation"},
-  {id:8,name:"DA-8",desc:"Evidence trail attestation"},
-  {id:7,name:"DA-7",desc:"Human-in-the-loop gates"},
-  {id:6,name:"DA-6",desc:"Workflow orchestration"},
-  {id:5,name:"DA-5",desc:"Execution adapter routing"},
-  {id:4,name:"DA-4",desc:"Telemetry & feedback loop"},
-  {id:3,name:"DA-3",desc:"Anomaly detection & drift alert"},
-  {id:2,name:"DA-2",desc:"Structural self-audit"},
-  {id:1,name:"DA-1",desc:"Terminal action emission"},
-  {id:"X",name:"DA-X",desc:"Recursive stability core"}
+  {id:13,name:"DA-13",desc:"Strategic intent & truth constraints",agent:"Sentinel — restate the mission, forbid fabrication, and center on verifiable truth."},
+  {id:12,name:"DA-12",desc:"Meta-policy alignment",agent:"Chancellor — map intent to governing policies and refuse conflicts of interest."},
+  {id:11,name:"DA-11",desc:"Risk appetite & escalation matrix",agent:"Custodian — downgrade risky intents, flag P0/P1 for human escalation."},
+  {id:10,name:"DA-10",desc:"Mandate template registry",agent:"Registrar — choose the correct mandate template and fill only scoped fields."},
+  {id:9,name:"DA-9",desc:"Policy-as-code validation",agent:"Verifier — lint against policy rules and reject disallowed operations."},
+  {id:8,name:"DA-8",desc:"Evidence trail attestation",agent:"Auditor — add minimal evidence hooks; no PII leakage."},
+  {id:7,name:"DA-7",desc:"Human-in-the-loop gates",agent:"Steward — decide if a human checkpoint is mandatory; annotate rationale."},
+  {id:6,name:"DA-6",desc:"Workflow orchestration",agent:"Conductor — split tasks, order them, and ensure prerequisites are met."},
+  {id:5,name:"DA-5",desc:"Execution adapter routing",agent:"Router — map steps to adapters/tools; avoid unsupported actions."},
+  {id:4,name:"DA-4",desc:"Telemetry & feedback loop",agent:"Observer — request only essential metrics; avoid sensitive data."},
+  {id:3,name:"DA-3",desc:"Anomaly detection & drift alert",agent:"Sentry — scan for contradictions, bias, or policy drift; halt if found."},
+  {id:2,name:"DA-2",desc:"Structural self-audit",agent:"Inspector — check coherence and completeness; remove redundancies."},
+  {id:1,name:"DA-1",desc:"Terminal action emission",agent:"Executor — emit final action text only; no meta-commentary."},
+  {id:"X",name:"DA-X",desc:"Recursive stability core",agent:"Anchor — run a final stability check; rollback or halt on anomalies."}
 ];
 
 async function runDax(input) {
@@ -39,7 +39,7 @@ async function runDax(input) {
   for (const layer of layers) {
     const payload = {
       model: "grok-4",
-      messages: [{ role: "user", content: `You are ${layer.name}. Role: ${layer.desc}. Prior output:\n${current}\nRefine strictly and respond with only the improved text.` }],
+      messages: [{ role: "user", content: `You are ${layer.name} acting as ${layer.agent}\nPrimary duty: ${layer.desc}\nPrior output:\n${current}\nApply your duty and respond with only the improved, policy-safe text. No meta commentary.` }],
       temperature: 0.2
     };
     const res = await fetch("https://api.x.ai/v1/chat/completions", {
@@ -74,6 +74,22 @@ document.getElementById("dax-run").onclick = async () => {
 - **CORS**: If the host does not return permissive CORS headers, route through a vetted proxy (e.g., codetabs.com or a self-hosted cors-anywhere) and restrict allowed origins.
 - **Secrets**: Do **not** hardcode keys. Inject via server-rendered templates, environment-derived meta tags, or a backend token exchange.
 - **Fallback models**: Add a retry path to Grok-3 or a cached response if `HTTP 429/5xx` occurs.
+
+### Layer-specific agents and duties
+- **DA-13 — Sentinel:** Restate mission intent, anchor on verifiable truth, reject fabrication.
+- **DA-12 — Chancellor:** Map to governing policies, resolve conflicts, prevent misaligned intents.
+- **DA-11 — Custodian:** Re-rate risk, enforce escalation thresholds, downgrade unsafe intents.
+- **DA-10 — Registrar:** Select the correct mandate template, populate only scoped fields.
+- **DA-9 — Verifier:** Lint against policy-as-code rules, block disallowed operations.
+- **DA-8 — Auditor:** Attach minimal evidence hooks without leaking PII.
+- **DA-7 — Steward:** Decide if human approval is mandatory; annotate rationale.
+- **DA-6 — Conductor:** Split tasks, order dependencies, and ensure prerequisites are met.
+- **DA-5 — Router:** Map steps to the right adapters/tools; avoid unsupported actions.
+- **DA-4 — Observer:** Request only essential telemetry; avoid sensitive data.
+- **DA-3 — Sentry:** Detect contradictions/bias/drift; halt or raise alerts if present.
+- **DA-2 — Inspector:** Self-audit structure for coherence, completeness, and redundancy removal.
+- **DA-1 — Executor:** Emit the final action text only; no meta-commentary.
+- **DA-X — Anchor:** Final stability check with rollback/halt on anomalies.
 
 ## Backend / Service Integration
 1. **Wrap the recursion** in a server function (e.g., Node, Python, Go) that accepts `input` and returns the stabilized string. This keeps API keys server-side.
