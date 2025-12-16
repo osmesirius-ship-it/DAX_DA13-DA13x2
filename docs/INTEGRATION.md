@@ -185,3 +185,4 @@ print(result["trace"])
 - Add schema validation around `reason` responses to avoid malformed JSON from providers.
 - Publish quickstart unit tests that exercise the SDK transports and layer override paths.
 - Package a CLI wrapper that shells the SDKs and emits NDJSON traces for observability stacks.
+- Use [`docs/ANTHROPIC_HANDOFF.md`](ANTHROPIC_HANDOFF.md) when preparing a red-team engagement (e.g., Anthropic) to ensure prompts, surfaces, and evidence hooks match what evaluators will hit.
