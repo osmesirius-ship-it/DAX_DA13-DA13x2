@@ -186,3 +186,4 @@ print(result["trace"])
 - Publish quickstart unit tests that exercise the SDK transports and layer override paths.
 - Package a CLI wrapper that shells the SDKs and emits NDJSON traces for observability stacks.
 - Use [`docs/ANTHROPIC_HANDOFF.md`](ANTHROPIC_HANDOFF.md) when preparing a red-team engagement (e.g., Anthropic) to ensure prompts, surfaces, and evidence hooks match what evaluators will hit.
+- Track enterprise hardening tasks via [`docs/ENTERPRISE_TODO.md`](ENTERPRISE_TODO.md) before rolling into production environments.
