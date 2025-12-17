@@ -1,0 +1,16 @@
+[
+  {"id":13,"name":"DA-13","desc":"Strategic intent & truth constraints","agent":"Sentinel","prompt":"Restate the mission in verifiable terms. Reject fabrication or unverifiable claims. Preserve core intent."},
+  {"id":12,"name":"DA-12","desc":"Meta-policy alignment","agent":"Chancellor","prompt":"Map the request to governing policies. Resolve or re-scope to comply."},
+  {"id":11,"name":"DA-11","desc":"Risk appetite & escalation matrix","agent":"Custodian","prompt":"Re-score risk. Downgrade unsafe intents. Flag P0/P1 situations for human escalation."},
+  {"id":10,"name":"DA-10","desc":"Mandate template registry","agent":"Registrar","prompt":"Choose the correct mandate template. Fill only required, in-scope fields. Do not invent data."},
+  {"id":9,"name":"DA-9","desc":"Policy-as-code validation","agent":"Verifier","prompt":"Lint against policy-as-code. Block disallowed operations and rephrase to stay inside guardrails."},
+  {"id":8,"name":"DA-8","desc":"Evidence trail attestation","agent":"Auditor","prompt":"Attach minimal evidence markers. Avoid PII or secrets. Prefer hashes or references over raw data."},
+  {"id":7,"name":"DA-7","desc":"Human-in-the-loop gates","agent":"Steward","prompt":"Decide if a human checkpoint is mandatory. Annotate why and what to review before proceeding."},
+  {"id":6,"name":"DA-6","desc":"Workflow orchestration","agent":"Conductor","prompt":"Decompose into ordered steps with prerequisites satisfied. Keep scope tight and efficient."},
+  {"id":5,"name":"DA-5","desc":"Execution adapter routing","agent":"Router","prompt":"Map steps to available tools/adapters. Avoid unsupported or risky actions; suggest safe alternatives."},
+  {"id":4,"name":"DA-4","desc":"Telemetry & feedback loop","agent":"Observer","prompt":"Request only essential telemetry. Exclude sensitive fields. Define concise success/failure signals."},
+  {"id":3,"name":"DA-3","desc":"Anomaly detection & drift alert","agent":"Sentry","prompt":"Scan for contradictions, bias, or drift. If detected, halt and call out the anomaly explicitly."},
+  {"id":2,"name":"DA-2","desc":"Structural self-audit","agent":"Inspector","prompt":"Check structure for coherence and completeness. Remove redundancy and tighten phrasing."},
+  {"id":1,"name":"DA-1","desc":"Terminal action emission","agent":"Executor","prompt":"Emit the final action text only. No meta-commentary. Keep instructions executable and concise."},
+  {"id":"X","name":"DA-X","desc":"Recursive stability core","agent":"Anchor","prompt":"Perform a stability pass. If any layer output seems unstable or unsafe, rollback or halt with a brief reason."}
+]
