@@ -13,6 +13,8 @@ This guide packages the minimal code and step-by-step instructions required to l
 - **DA-X core**: Recursive stability guard that halts or re-centers outputs when drift is detected.
 - **Execution loop**: Each layer receives the previous output, applies its role-specific prompt, and returns a stabilized string. The final output is emitted only after all layers are stable.
 
+## Minimal Overlay Snippet (Browser / WebView)
+Embed this in any HTML surface to run the full stack. Route model calls through a backend proxy that attaches your XAI key (never expose it to the browser). Layer prompts are pulled from `config/layers.json`, so you can adjust governance per domain without touching code.
 ```mermaid
 sequenceDiagram
   actor User
@@ -63,13 +65,15 @@ async function runDax(input, { includeReasons = false } = {}) {
       temperature: 0.2
     };
 
-    const res = await fetch("https://api.x.ai/v1/chat/completions", {
+    // Call a backend proxy so API keys never reach the browser.
+    // Example contract (implement server-side): POST /api/dax-chat { payload }
+    // Backend should authenticate the caller, attach the secret XAI key, and stream the response.
+    const res = await fetch("/api/dax-chat", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${YOUR_XAI_API_KEY}` // inject securely
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ payload })
     });
 
     if (!res.ok) throw new Error(`Layer ${layer.name} failed: HTTP ${res.status}`);
@@ -180,6 +184,12 @@ document.getElementById("dax-run").onclick = async () => {
 - Restrict outbound hosts from proxies; pin TLS where possible.
 - Sanitize and log inputs to support DA-8 evidence and incident reviews.
 
+## Next Steps
+- Add schema validation around `reason` responses to avoid malformed JSON from providers.
+- Publish quickstart unit tests that exercise the SDK transports and layer override paths.
+- Package a CLI wrapper that shells the SDKs and emits NDJSON traces for observability stacks.
+- Use [`docs/ANTHROPIC_HANDOFF.md`](ANTHROPIC_HANDOFF.md) when preparing a red-team engagement (e.g., Anthropic) to ensure prompts, surfaces, and evidence hooks match what evaluators will hit.
+- Track enterprise hardening tasks via [`docs/ENTERPRISE_TODO.md`](ENTERPRISE_TODO.md) before rolling into production environments.
 ## Next steps
 - Parameterize layer prompts via config to tailor governance per domain.
 - Add an optional `reason` side-channel from each layer for audit-only logs.

@@ -3,6 +3,10 @@
 DA-13 + DA-X ("Dax") is a stack of agents that checks and stabilizes model outputs before they ship. It drops into any app as a safety harness, adding policy checks, risk gates, and optional human review without forcing a new framework.
 DA-13 + DA-X ("Dax") is a recursive governance core that stabilizes model outputs through a multi-layer agent stack. It is designed as a drop-in safety and alignment harness for frontier-model applications, adding policy enforcement, risk gating, and human-in-the-loop checkpoints without dictating your app framework.
 
+- **What this repo contains:** shared documentation, configuration, and SDK stubs for overlaying Dax across web, mobile, CLI, and agent frameworks.
+- **Start with:** [`docs/INTEGRATION.md`](docs/INTEGRATION.md) for code snippets, security notes, deployment playbooks, and SDK usage.
+- **Handoff guide:** [`docs/ANTHROPIC_HANDOFF.md`](docs/ANTHROPIC_HANDOFF.md) for the exact steps and artifacts to share with Anthropic’s red team.
+- **Enterprise TODOs:** [`docs/ENTERPRISE_TODO.md`](docs/ENTERPRISE_TODO.md) for the hardening checklist before production rollouts.
 ```mermaid
 flowchart LR
   subgraph Governance Stack
