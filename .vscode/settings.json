@@ -1,0 +1,36 @@
+{
+    "git.enabled": true,
+    "git.blame.editorDecoration.enabled": true,
+    "gitl.autoUpdate.enabled": true,
+    "gitl.signing.enabled": true,
+    "gitl.vcs.unversioned.enabled": true,
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./tests",
+        "-p",
+        "*test.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true,
+    "workbench.editor.autoLockGroups": {
+        "mainThreadWebview-markdown.preview": true,
+        "workbench.input.interactive": true,
+        "jsProfileVisualizer.heapsnapshot.table": true,
+        "jsProfileVisualizer.heapprofile.table": true,
+        "notebookOutputEditor": true,
+        "repl": true,
+        "default": true
+    },
+    "workbench.editor.closeOnFileDelete": true,
+    "workbench.editor.centeredLayoutFixedWidth": true,
+    "workbench.editor.enablePreviewFromCodeNavigation": true,
+    "workbench.editor.enablePreviewFromQuickOpen": true,
+    "workbench.editor.limit.enabled": true,
+    "workbench.editor.limit.perEditorGroup": true,
+    "workbench.editor.limit.excludeDirty": true,
+    "workbench.editor.pinnedTabsOnSeparateRow": true,
+    "workbench.editor.preferHistoryBasedLanguageDetection": true,
+    "workbench.editor.sharedViewState": true,
+    "workbench.editor.revealIfOpen": true
+}

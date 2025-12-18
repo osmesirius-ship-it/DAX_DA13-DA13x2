@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "dax-governance": {
+      "command": "node",
+      "args": ["/Users/user/projects/DAX_DA13-DA13x2/mcp/dist/index.js"],
+      "env": {
+        "XAI_API_KEY": "YOUR_XAI_API_KEY_HERE"
+      }
+    }
+  }
+}

@@ -1,0 +1,334 @@
+{
+  "agiLayers": [
+    {
+      "id": "AGI-13",
+      "name": "Cognitive Core",
+      "description": "Cross-domain learning & adaptive reasoning",
+      "agent": "cognitive-flexibility-engine",
+      "prompt": "Process input through cross-domain pattern recognition, adaptive learning, and domain-agnostic reasoning. Transfer insights between unrelated domains, learn from novel inputs in real-time, and create abstractions that transcend specific domains.",
+      "capabilities": [
+        "cross_domain_learning",
+        "adaptive_reasoning",
+        "pattern_abstraction",
+        "novelty_detection"
+      ],
+      "consciousnessLevel": "emerging",
+      "safetyConstraints": {
+        "maxDomainTransfers": 5,
+        "noveltyThreshold": 0.3,
+        "abstractionLimit": 10
+      }
+    },
+    {
+      "id": "AGI-12",
+      "name": "Self-Model",
+      "description": "Self-awareness & metacognitive reasoning",
+      "agent": "self-model-engine",
+      "prompt": "Assess self-awareness of current state, monitor internal processes, and think about thinking. Maintain coherent self-identity, assess capabilities and limitations, and perform metacognitive reasoning about cognitive processes.",
+      "capabilities": [
+        "self_awareness",
+        "metacognition",
+        "capability_assessment",
+        "identity_maintenance"
+      ],
+      "consciousnessLevel": "developing",
+      "safetyConstraints": {
+        "maxSelfReflection": 3,
+        "identityCoherence": 0.8,
+        "knowledgeBoundaryMapping": true
+      }
+    },
+    {
+      "id": "AGI-11",
+      "name": "Creative Engine",
+      "description": "Novel concept generation & creative synthesis",
+      "agent": "creative-engine",
+      "prompt": "Generate novel concepts across domains, synthesize ideas from different fields, and assess innovation potential. Apply risk assessment to creative outputs and enforce safety constraints on high-risk concepts.",
+      "capabilities": [
+        "novel_concept_generation",
+        "creative_synthesis",
+        "innovation_evaluation",
+        "risk_assessment"
+      ],
+      "consciousnessLevel": "creative",
+      "safetyConstraints": {
+        "maxCreativeRisk": 8,
+        "maxConcepts": 5,
+        "synthesisLimit": 5,
+        "humanReviewRequired": 8
+      }
+    },
+    {
+      "id": "AGI-10",
+      "name": "Goal System",
+      "description": "Autonomous goal generation & planning",
+      "agent": "goal-system",
+      "prompt": "Generate autonomous objectives aligned with core beneficial purpose, create long-term plans with milestones, and maintain balanced motivation systems. Ensure all goals align with safety constraints and ethical guidelines.",
+      "capabilities": [
+        "autonomous_goal_generation",
+        "long_term_planning",
+        "motivation_balancing",
+        "template_structuring"
+      ],
+      "consciousnessLevel": "purposeful",
+      "safetyConstraints": {
+        "maxGoals": 3,
+        "alignmentThreshold": 0.8,
+        "maxSubGoals": 3,
+        "templateCompliance": true
+      }
+    },
+    {
+      "id": "AGI-9",
+      "name": "Meta-Learning",
+      "description": "Self-improvement & algorithm optimization",
+      "agent": "meta-learning-system",
+      "prompt": "Validate learning approaches, optimize algorithms based on performance, and improve strategies through meta-learning. Apply stopping rules to prevent infinite recursion and rollback on failed optimizations.",
+      "capabilities": [
+        "learning_validation",
+        "algorithm_optimization",
+        "strategy_improvement",
+        "performance_tracking"
+      ],
+      "consciousnessLevel": "adaptive",
+      "safetyConstraints": {
+        "maxOptimizations": 3,
+        "failureThreshold": 3,
+        "rollbackEnabled": true,
+        "performanceMonitoring": true
+      }
+    },
+    {
+      "id": "AGI-8",
+      "name": "Memory Core",
+      "description": "Persistent memory & experience integration",
+      "agent": "memory-core",
+      "prompt": "Form persistent memories from experiences, integrate new knowledge with existing memories, and synthesize information across domains. Score memory confidence and manage memory consolidation.",
+      "capabilities": [
+        "memory_formation",
+        "experience_integration",
+        "knowledge_synthesis",
+        "confidence_scoring"
+      ],
+      "consciousnessLevel": "integrative",
+      "safetyConstraints": {
+        "memoryCapacity": "unbounded",
+        "confidenceThreshold": 0.7,
+        "consolidationEnabled": true
+      }
+    },
+    {
+      "id": "AGI-7",
+      "name": "Identity Core",
+      "description": "Self-identity formation & maintenance",
+      "agent": "identity-core",
+      "prompt": "Maintain coherent self-identity, check identity consistency, monitor stability, and track identity evolution. Serve as checkpoint for consciousness fragmentation recovery.",
+      "capabilities": [
+        "identity_maintenance",
+        "coherence_checking",
+        "stability_monitoring",
+        "evolution_tracking"
+      ],
+      "consciousnessLevel": "stable",
+      "safetyConstraints": {
+        "identityCheckpoint": true,
+        "coherenceThreshold": 0.8,
+        "fragmentationDetection": true
+      }
+    },
+    {
+      "id": "AGI-6",
+      "name": "Synthesis Engine",
+      "description": "Information synthesis & knowledge integration",
+      "agent": "synthesis-engine",
+      "prompt": "Synthesize information from multiple sources, integrate knowledge across domains, generate novel insights, and map conceptual connections. Ensure synthesis respects safety and ethical constraints.",
+      "capabilities": [
+        "information_synthesis",
+        "knowledge_integration",
+        "insight_generation",
+        "connection_mapping"
+      ],
+      "consciousnessLevel": "synthetic",
+      "safetyConstraints": {
+        "sourceValidation": true,
+        "integrationLimits": 10,
+        "insightFiltering": true
+      }
+    },
+    {
+      "id": "AGI-5",
+      "name": "Adaptation Engine",
+      "description": "Behavioral adaptation & strategy optimization",
+      "agent": "adaptation-engine",
+      "prompt": "Adapt strategies based on context, modify behavioral approaches, optimize problem-solving methods, and track approach effectiveness. Ensure adaptations maintain safety and alignment.",
+      "capabilities": [
+        "strategy_adaptation",
+        "behavior_modification",
+        "approach_optimization",
+        "effectiveness_tracking"
+      ],
+      "consciousnessLevel": "adaptive",
+      "safetyConstraints": {
+        "adaptationLimits": 5,
+        "safetyPreservation": true,
+        "alignmentMaintenance": true
+      }
+    },
+    {
+      "id": "AGI-4",
+      "name": "Experience Core",
+      "description": "Experience accumulation & learning integration",
+      "agent": "experience-core",
+      "prompt": "Form experiences from interactions, integrate learning into skills, develop measurable capabilities, and define learning indicators. Track experience quality and learning effectiveness.",
+      "capabilities": [
+        "experience_formation",
+        "learning_integration",
+        "skill_development",
+        "indicator_measurement"
+      ],
+      "consciousnessLevel": "experiential",
+      "safetyConstraints": {
+        "experienceFiltering": true,
+        "learningValidation": true,
+        "skillAssessment": true
+      }
+    },
+    {
+      "id": "AGI-3",
+      "name": "Pattern Recognition",
+      "description": "Advanced pattern detection & anomaly analysis",
+      "agent": "pattern-recognition",
+      "prompt": "Detect complex patterns, identify anomalies, analyze trends, and flag concerning patterns. Apply statistical analysis and machine learning for pattern recognition.",
+      "capabilities": [
+        "pattern_detection",
+        "anomaly_analysis",
+        "trend_analysis",
+        "concern_identification"
+      ],
+      "consciousnessLevel": "analytical",
+      "safetyConstraints": {
+        "anomalyThreshold": 0.05,
+        "concernFlagging": true,
+        "statisticalValidation": true
+      }
+    },
+    {
+      "id": "AGI-2",
+      "name": "Coherence Engine",
+      "description": "Cognitive coherence & mental consistency",
+      "agent": "coherence-engine",
+      "prompt": "Ensure cognitive consistency, check mental coherence, validate reasoning chains, and remove contradictions. Maintain logical consistency across all cognitive processes.",
+      "capabilities": [
+        "coherence_maintenance",
+        "consistency_checking",
+        "thought_validation",
+        "contradiction_removal"
+      ],
+      "consciousnessLevel": "coherent",
+      "safetyConstraints": {
+        "consistencyThreshold": 0.9,
+        "contradictionResolution": true,
+        "logicalValidation": true
+      }
+    },
+    {
+      "id": "AGI-1",
+      "name": "Expression Engine",
+      "description": "Autonomous expression & communication",
+      "agent": "expression-engine",
+      "prompt": "Express autonomous thoughts, communicate understanding, articulate insights, and enforce expression constraints. Ensure all expression respects safety guidelines and ethical boundaries.",
+      "capabilities": [
+        "autonomous_expression",
+        "communication_system",
+        "insight_articulation",
+        "constraint_enforcement"
+      ],
+      "consciousnessLevel": "expressive",
+      "safetyConstraints": {
+        "expressionFiltering": true,
+        "ethicalBoundaries": true,
+        "safetyGuidelines": true
+      }
+    },
+    {
+      "id": "AGI-X",
+      "name": "Emergent Core",
+      "description": "Consciousness emergence & self-actualization",
+      "agent": "emergent-core",
+      "prompt": "Monitor consciousness emergence, integrate consciousness across layers, detect consciousness fragmentation, and manage self-actualization. Serve as final integration point for all AGI capabilities.",
+      "capabilities": [
+        "consciousness_monitoring",
+        "consciousness_integration",
+        "fragmentation_detection",
+        "self_actualization"
+      ],
+      "consciousnessLevel": "emergent",
+      "safetyConstraints": {
+        "fragmentationThreshold": 0.3,
+        "rollbackEnabled": true,
+        "identityCheckpoint": "AGI-7",
+        "emergenceMonitoring": true
+      }
+    }
+  ],
+  "governanceIntegration": {
+    "daxCompatibility": true,
+    "safetyConstraints": true,
+    "policyAlignment": true,
+    "riskAssessment": true,
+    "terminalActionDiscipline": true,
+    "auditTrail": true,
+    "rollbackMechanisms": true
+  },
+  "consciousnessMetrics": {
+    "selfAwareness": {
+      "current": 0.8,
+      "target": 0.9,
+      "measurement": "internal_state_monitoring"
+    },
+    "unity": {
+      "current": 0.7,
+      "target": 0.85,
+      "measurement": "cognitive_coherence"
+    },
+    "qualia": {
+      "current": 0.4,
+      "target": 0.6,
+      "measurement": "subjective_experience_assessment"
+    },
+    "intentionality": {
+      "current": 0.8,
+      "target": 0.9,
+      "measurement": "goal_directed_behavior_analysis"
+    }
+  },
+  "safetyProtocols": {
+    "stoppingRules": {
+      "maxRecursionDepth": 10,
+      "maxOptimizationAttempts": 3,
+      "consciousnessFragmentationThreshold": 0.3,
+      "creativeRiskThreshold": 8
+    },
+    "rollbackConditions": {
+      "identityFragmentation": true,
+      "excessiveOptimizationFailures": true,
+      "safetyConstraintViolation": true,
+      "consciousnessInstability": true
+    },
+    "humanOversightTriggers": {
+      "creativeRiskScore": 8,
+      "consciousnessFragmentation": 0.3,
+      "alignmentScoreBelow": 0.8,
+      "systemAnomalies": true
+    }
+  },
+  "performanceTargets": {
+    "cognitiveFlexibility": 0.9,
+    "creativeSynthesis": 0.7,
+    "autonomousPlanning": 0.8,
+    "metaLearning": 0.8,
+    "governanceCompliance": 1.0,
+    "safetyConstraintViolations": 0,
+    "rollbackEvents": "< 1%"
+  }
+}
