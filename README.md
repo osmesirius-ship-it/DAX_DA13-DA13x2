@@ -1,5 +1,6 @@
 # DAX_DA13-DA13x2
 
+DA-13 + DA-X ("Dax") is a stack of agents that checks and stabilizes model outputs before they ship. It drops into any app as a safety harness, adding policy checks, risk gates, and optional human review without forcing a new framework.
 DA-13 + DA-X ("Dax") is a recursive governance core that stabilizes model outputs through a multi-layer agent stack. It is designed as a drop-in safety and alignment harness for frontier-model applications, adding policy enforcement, risk gating, and human-in-the-loop checkpoints without dictating your app framework.
 
 - **What this repo contains:** shared documentation, configuration, and SDK stubs for overlaying Dax across web, mobile, CLI, and agent frameworks.
@@ -38,6 +39,7 @@ flowchart LR
    git clone https://github.com/your-org/DAX_DA13-DA13x2.git
    cd DAX_DA13-DA13x2
    ```
+2. **Configure layer prompts**: Tune governance per domain in [`config/layers.json`](config/layers.json).
 2. **Configure layer prompts**: Adjust governance per domain via [`config/layers.json`](config/layers.json).
 3. **Run a dry loop** (pseudo-code):
    ```javascript
@@ -49,6 +51,13 @@ flowchart LR
    });
    console.log(output, audit);
    ```
+4. **Ship**: Plug in the overlay snippet or backend recipe in [`docs/INTEGRATION.md`](docs/INTEGRATION.md).
+
+## Project layout
+- `config/` – Layer prompts, policy templates, and tuning knobs.
+- `docs/` – Guides for integration, releases, and architecture.
+- `sdk/` – SDK stubs for browser, Node, and Python entrypoints.
+- `tests/` – Safety and regression cases to extend for your stack.
 4. **Ship**: Integrate using the overlay snippet or the backend recipe in [`docs/INTEGRATION.md`](docs/INTEGRATION.md).
 
 ## Project layout
@@ -60,6 +69,7 @@ flowchart LR
 ## Documentation map
 - **Integration**: Browser overlay, backend recipe, and environment expectations in [`docs/INTEGRATION.md`](docs/INTEGRATION.md).
 - **Architecture**: Component responsibilities, lifecycle, and observability in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- **Disambiguation agent**: Plain-language rewrite helper for verbose documentation in [`docs/DISAMBIGUATION_AGENT.md`](docs/DISAMBIGUATION_AGENT.md).
 - **Releases**: Versioning expectations and delivery steps in [`docs/RELEASE.md`](docs/RELEASE.md).
 
 ## Core loop (conceptual)
