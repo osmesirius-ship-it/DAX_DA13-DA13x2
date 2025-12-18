@@ -1,6 +1,7 @@
 # DAX_DA13-DA13x2
 
 DA-13 + DA-X ("Dax") is a stack of agents that checks and stabilizes model outputs before they ship. It drops into any app as a safety harness, adding policy checks, risk gates, and optional human review without forcing a new framework.
+DA-13 + DA-X ("Dax") is a recursive governance core that stabilizes model outputs through a multi-layer agent stack. It is designed as a drop-in safety and alignment harness for frontier-model applications, adding policy enforcement, risk gating, and human-in-the-loop checkpoints without dictating your app framework.
 
 ```mermaid
 flowchart LR
@@ -24,9 +25,9 @@ flowchart LR
 ```
 
 ## Why Dax
-- **Governance-first**: Thirteen passes plus the DA-X anchor catch drift, hallucination, and policy breaks before anything executes.
-- **Framework-agnostic**: Works with browsers, CLIs, agent frameworks, or custom services through one recursion loop.
-- **Auditable by default**: Layers can emit reasons and evidence so investigators can see why a decision was made.
+- **Governance-first**: Thirteen disciplined refinement layers plus the DA-X anchor catch drift, hallucination, and policy violations before terminal actions are emitted.
+- **Framework-agnostic**: Works with browsers, CLIs, agent frameworks, or bespoke services through a single recursion loop.
+- **Auditable by default**: Every layer can emit rationale and evidence hooks to support investigations and compliance.
 
 ## Quick start (local experiment)
 1. **Clone & install**
@@ -35,6 +36,7 @@ flowchart LR
    cd DAX_DA13-DA13x2
    ```
 2. **Configure layer prompts**: Tune governance per domain in [`config/layers.json`](config/layers.json).
+2. **Configure layer prompts**: Adjust governance per domain via [`config/layers.json`](config/layers.json).
 3. **Run a dry loop** (pseudo-code):
    ```javascript
    import { runDax } from './sdk/javascript/dax.js';
@@ -52,6 +54,13 @@ flowchart LR
 - `docs/` – Guides for integration, releases, and architecture.
 - `sdk/` – SDK stubs for browser, Node, and Python entrypoints.
 - `tests/` – Safety and regression cases to extend for your stack.
+4. **Ship**: Integrate using the overlay snippet or the backend recipe in [`docs/INTEGRATION.md`](docs/INTEGRATION.md).
+
+## Project layout
+- `config/` – Layer prompts, policy templates, and per-domain tuning knobs.
+- `docs/` – Guides for integration, releases, and architecture.
+- `sdk/` – SDK stubs for browser, Node, and Python entrypoints.
+- `tests/` – Safety and regression cases you can extend for your stack.
 
 ## Documentation map
 - **Integration**: Browser overlay, backend recipe, and environment expectations in [`docs/INTEGRATION.md`](docs/INTEGRATION.md).

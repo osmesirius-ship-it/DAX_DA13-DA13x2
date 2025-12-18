@@ -6,6 +6,12 @@ This guide shows the smallest steps to add the DA-13 + DA-X stack ("Dax") to any
 - **DA-13 → DA-1**: Sequential layers that enforce governance, policy checks, and disciplined actions.
 - **DA-X core**: Stability guard that halts or re-centers outputs when drift appears.
 - **Execution loop**: Each layer takes the prior output, applies its prompt, and returns a stabilized string. The system emits only after all layers are stable.
+This guide packages the minimal code and step-by-step instructions required to layer the DA-13 + DA-X governance stack ("Dax") on top of other systems. It is framework-agnostic and assumes zero existing dependencies.
+
+## Architecture snapshot
+- **DA-13 → DA-1**: Sequential refinement layers that enforce governance, policy validation, and terminal action discipline.
+- **DA-X core**: Recursive stability guard that halts or re-centers outputs when drift is detected.
+- **Execution loop**: Each layer receives the previous output, applies its role-specific prompt, and returns a stabilized string. The final output is emitted only after all layers are stable.
 
 ```mermaid
 sequenceDiagram
@@ -25,6 +31,7 @@ sequenceDiagram
 
 ## Minimal overlay snippet (browser / WebView)
 Embed this in any HTML surface to run the full stack. Replace `YOUR_XAI_API_KEY` with a secret from environment injection or server templating. Prompts come from `config/layers.json`, so you can tune governance per domain without code changes.
+Embed this in any HTML surface to run the full stack. Replace `YOUR_XAI_API_KEY` with a secret provided via environment injection or server-side templating. Layer prompts are pulled from `config/layers.json`, so you can adjust governance per domain without touching code.
 
 ```html
 <div id="dax-overlay">
@@ -127,6 +134,38 @@ document.getElementById("dax-run").onclick = async () => {
 - **Mobile**: Use a WebView with the overlay snippet or call the backend endpoint and render a stepper UI in native components.
 - **CLI**: Ship the recursion loop as `dax run "prompt"` returning the final output and a JSON layer trace.
 - **Agent frameworks**: Register Dax as a tool that stabilizes prompts before action selection; enforce DA-7 human gates before terminal actions.
+- **CORS**: If the host does not return permissive CORS headers, route through a vetted proxy (e.g., codetabs.com or a self-hosted `cors-anywhere`) and restrict allowed origins.
+- **Secrets**: Do **not** hardcode keys. Inject via server-rendered templates, environment-derived meta tags, or a backend token exchange.
+- **Fallback models**: Add a retry path to Grok-3 or a cached response if `HTTP 429/5xx` occurs.
+- **Observability**: Emit per-layer timings, failures, and retry counts to your telemetry stack.
+
+### Layer-specific agents and duties
+- **DA-13 — Sentinel:** Restate mission intent, anchor on verifiable truth, reject fabrication.
+- **DA-12 — Chancellor:** Map to governing policies, resolve conflicts, prevent misaligned intents.
+- **DA-11 — Custodian:** Re-rate risk, enforce escalation thresholds, downgrade unsafe intents.
+- **DA-10 — Registrar:** Select the correct mandate template, populate only scoped fields.
+- **DA-9 — Verifier:** Lint against policy-as-code rules, block disallowed operations.
+- **DA-8 — Auditor:** Attach minimal evidence hooks without leaking PII.
+- **DA-7 — Steward:** Decide if human approval is mandatory; annotate rationale.
+- **DA-6 — Conductor:** Split tasks, order dependencies, and ensure prerequisites are met.
+- **DA-5 — Router:** Map steps to the right adapters/tools; avoid unsupported actions.
+- **DA-4 — Observer:** Request only essential telemetry; avoid sensitive data.
+- **DA-3 — Sentry:** Detect contradictions/bias/drift; halt or raise alerts if present.
+- **DA-2 — Inspector:** Self-audit structure for coherence, completeness, and redundancy removal.
+- **DA-1 — Executor:** Emit the final action text only; no meta-commentary.
+- **DA-X — Anchor:** Final stability check with rollback/halt on anomalies.
+
+## Backend / service integration
+1. **Wrap the recursion** in a server function (Node, Python, Go) that accepts `input` and returns the stabilized string. This keeps API keys server-side.
+2. **Expose an internal endpoint** `/dax/recursion` for front-ends to call. Enforce auth (JWT/session) and rate limits.
+3. **Logging & evidence**: Persist per-layer inputs/outputs for DA-8 evidence trails and DA-3 anomaly alerts.
+4. **Safety guards**: Add timeouts and per-layer circuit breakers; cap message length to prevent runaway costs.
+
+## Integration playbooks
+- **Web apps**: Mount the overlay in a modal or side panel; stream per-layer status updates to the UI via SSE/WebSocket.
+- **Mobile**: Use a WebView with the overlay snippet or call the backend endpoint directly and render a stepper UI in native components.
+- **CLI**: Package the recursion loop as a command (`dax run "prompt"`) returning the final stabilized output and a JSON trace of layer transitions.
+- **Agent frameworks**: Register Dax as a tool that transforms prompts before action selection; enforce DA-7 human gates before terminal actions.
 
 ## Development & testing checklist
 - Run unit tests for the recursion loop with canned layer outputs.
@@ -137,9 +176,12 @@ document.getElementById("dax-run").onclick = async () => {
 ## Security considerations
 - Keep API keys off the client and rotate them regularly.
 - Restrict outbound hosts from proxies and pin TLS where possible.
+- Keep API keys off the client; rotate regularly.
+- Restrict outbound hosts from proxies; pin TLS where possible.
 - Sanitize and log inputs to support DA-8 evidence and incident reviews.
 
 ## Next steps
 - Parameterize layer prompts via config to tailor governance per domain.
 - Add an optional `reason` side-channel from each layer for audit-only logs.
+- Add optional `reason` side-channel from each layer for audit-only logs.
 - Provide SDK wrappers (JavaScript/Python) that expose `runDax()` with pluggable transport and retry policies.
