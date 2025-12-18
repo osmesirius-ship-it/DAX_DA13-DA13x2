@@ -15,6 +15,6 @@ Follow this checklist before merging Dax updates into `main`:
    - Confirm no keys or secrets are committed.
    - Recheck proxy/CORS guidance for client-facing overlays.
 5. **Versioning**
-   - Note notable changes in the commit message and PR description so downstream consumers know what shifted.
+   - Call out notable changes in the commit message and PR description so downstream consumers know what shifted.
 
 Once these are satisfied, open the PR against `main` and merge after CI or manual checks pass.
