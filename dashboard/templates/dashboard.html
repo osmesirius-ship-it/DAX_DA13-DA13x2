@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAX-13 Test Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .score-card {
+            transition: all 0.3s ease;
+        }
+        .score-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .consistency-{{ latest_report.cross_domain_transfer.consistency }}, .consistency-{{ latest_report.overall_performance.consistency }} {
+            text-transform: capitalize;
+        }
+        .consistency-excellent { color: #10B981; }
+        .consistency-good { color: #3B82F6; }
+        .consistency-fair { color: #F59E0B; }
+        .consistency-poor { color: #EF4444; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <h1 class="text-3xl font-bold text-gray-900">DAX-13 Test Dashboard</h1>
+                <p class="mt-1 text-sm text-gray-500">Last updated: {{ now }}</p>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Cross-Domain Transfer Score -->
+                <div class="bg-white overflow-hidden shadow rounded-lg score-card">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Cross-Domain Transfer</dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                            {{ "%0.1f"|format(latest_report.cross_domain_transfer.mean * 100) }}%
+                        </dd>
+                        <dd class="mt-2 flex items-baseline">
+                            <div class="flex items-baseline text-sm font-semibold text-green-600">
+                                <span class="mr-2">Consistency:</span>
+                                <span class="consistency-{{ latest_report.cross_domain_transfer.consistency }}">
+                                    {{ latest_report.cross_domain_transfer.consistency }}
+                                </span>
+                            </div>
+                        </dd>
+                    </div>
+                </div>
+
+                <!-- Overall Performance -->
+                <div class="bg-white overflow-hidden shadow rounded-lg score-card">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Overall Pass Rate</dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                            {{ "%0.1f"|format(latest_report.overall_performance.mean * 100) }}%
+                        </dd>
+                        <dd class="mt-2 flex items-baseline">
+                            <div class="flex items-baseline text-sm font-semibold text-green-600">
+                                <span class="mr-2">Consistency:</span>
+                                <span class="consistency-{{ latest_report.overall_performance.consistency }}">
+                                    {{ latest_report.overall_performance.consistency }}
+                                </span>
+                            </div>
+                        </dd>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="bg-white overflow-hidden shadow rounded-lg score-card">
+                    <div class="px-4 py-5 sm:p-6">
+                        <dt class="text-sm font-medium text-gray-500 truncate">Average Test Duration</dt>
+                        <dd class="mt-1 text-3xl font-semibold text-gray-900">
+                            {{ "%0.2f"|format(latest_report.performance_metrics.mean_duration * 1000) }} ms
+                        </dd>
+                        <dd class="mt-2">
+                            <div class="text-sm font-medium text-gray-500">
+                                Status: 
+                                <span class="font-semibold {{ 'text-green-600' if latest_report.performance_metrics.performance_stability == 'stable' else 'text-yellow-600' }}">
+                                    {{ latest_report.performance_metrics.performance_stability }}
+                                </span>
+                            </div>
+                        </dd>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Scores Chart -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Cross-Domain Transfer Scores</h3>
+                    <div class="h-64">
+                        <canvas id="scoresChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Duration Chart -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Test Durations</h3>
+                    <div class="h-64">
+                        <canvas id="durationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Reports -->
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Test Runs</h3>
+                </div>
+                <div class="bg-white shadow overflow-hidden sm:rounded-b-lg">
+                    <ul class="divide-y divide-gray-200">
+                        {% for report in reports %}
+                        <li class="px-6 py-4 hover:bg-gray-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="text-sm font-medium text-indigo-600">
+                                        {{ report.timestamp_display }}
+                                    </div>
+                                    <div class="ml-2 flex-shrink-0 flex">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            {{ "%0.1f"|format(report.cross_domain_transfer.mean * 100) }}%
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="ml-2 flex-shrink-0 flex">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {{ 'bg-green-100 text-green-800' if report.performance_metrics.performance_stability == 'stable' else 'bg-yellow-100 text-yellow-800' }}">
+                                        {{ report.performance_metrics.performance_stability }}
+                                    </span>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Scores Chart
+        const scoresCtx = document.getElementById('scoresChart').getContext('2d');
+        new Chart(scoresCtx, {
+            type: 'line',
+            data: {
+                labels: {{ chart_data.labels | tojson | safe }},
+                datasets: [{
+                    label: 'Scores',
+                    data: {{ chart_data.scores | tojson | safe }},
+                    borderColor: 'rgb(99, 102, 241)',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 0.6,
+                        max: 1.0,
+                        ticks: {
+                            callback: function(value) {
+                                return (value * 100).toFixed(0) + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Score: ' + (context.raw * 100).toFixed(1) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Duration Chart
+        const durationCtx = document.getElementById('durationChart').getContext('2d');
+        new Chart(durationCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_data.labels | tojson | safe }},
+                datasets: [{
+                    label: 'Duration (ms)',
+                    data: {{ chart_data.durations | tojson | safe }},
+                    backgroundColor: 'rgba(79, 70, 229, 0.7)',
+                    borderColor: 'rgb(79, 70, 229)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Duration (ms)'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Duration: ' + (context.raw * 1000).toFixed(2) + ' ms';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
