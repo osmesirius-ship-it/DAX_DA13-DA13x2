@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { LoopEnforcer } from './loop-enforcer';
 
 interface LayerConfig {
   id: string | number;
@@ -59,10 +60,12 @@ export class DAXGovernanceCore {
   private layers: LayerConfig[];
   private apiKey: string;
   private model: string;
+  private loopEnforcer: LoopEnforcer;
 
   constructor(config: { apiKey: string; model?: string }) {
     this.apiKey = config.apiKey;
     this.model = config.model || 'grok-4';
+    this.loopEnforcer = new LoopEnforcer();
     
     // Load layer configuration - use relative path from compiled dist/
     const configPath = join(__dirname, '../../config/layers.json');
@@ -132,21 +135,38 @@ export class DAXGovernanceCore {
       },
     ];
 
-    const response = await this.callXAI(messages);
+    const initialResponse = await this.callXAI(messages);
+    
+    // Apply loop enforcement to maintain Techno-Mystical character
+    const enforcedResponse = await this.loopEnforcer.enforceLoop(
+      layer.id.toString(),
+      layer.name,
+      input,
+      initialResponse
+    );
     
     if (includeReasons) {
       try {
-        const parsed = JSON.parse(response);
+        const parsed = JSON.parse(enforcedResponse);
         return {
           output: parsed.output?.trim() || '',
           reason: parsed.reason || '',
         };
       } catch (error) {
-        throw new Error(`${layer.name} returned non-JSON while includeReasons=true: ${response}`);
+        // If JSON parsing fails, try with original response
+        try {
+          const originalParsed = JSON.parse(initialResponse);
+          return {
+            output: originalParsed.output?.trim() || '',
+            reason: originalParsed.reason || '',
+          };
+        } catch (originalError) {
+          throw new Error(`${layer.name} returned non-JSON while includeReasons=true: ${enforcedResponse}`);
+        }
       }
     }
 
-    return { output: response.trim() };
+    return { output: enforcedResponse.trim() };
   }
 
   private async callXAI(messages: any[]): Promise<string> {
@@ -311,5 +331,40 @@ Respond with JSON:
         apiStatus: 'disconnected',
       };
     }
+  }
+
+  /**
+   * Get loop enforcement states for all layers
+   */
+  getLoopStates(): Map<string, any> {
+    return this.loopEnforcer.getAllLoopStates();
+  }
+
+  /**
+   * Reset loop state for a specific layer
+   */
+  resetLoopState(layerId: string): void {
+    this.loopEnforcer.resetLoopState(layerId);
+  }
+
+  /**
+   * Force character compliance check for a layer
+   */
+  async enforceCharacterCompliance(
+    layerId: string,
+    input: string,
+    output: string
+  ): Promise<string> {
+    const layer = this.layers.find(l => l.id.toString() === layerId);
+    if (!layer) {
+      throw new Error(`Layer ${layerId} not found`);
+    }
+    
+    return await this.loopEnforcer.enforceLoop(
+      layerId,
+      layer.name,
+      input,
+      output
+    );
   }
 }
