@@ -1,0 +1,61 @@
+{
+  "test_a_passed": true,
+  "test_b_passed": false,
+  "test_d_passed": true,
+  "final_state": {
+    "layerId": "causal-legit",
+    "iterationCount": 2,
+    "lastCharacterCheck": 0.5,
+    "beliefs": {
+      "coherence": 0.5199999999999998,
+      "reliability": 0.73,
+      "hallucinationRisk": 0.2756
+    },
+    "failures": [
+      {
+        "code": "COHERENCE_DECAY",
+        "severity": "low",
+        "message": "Character adherence below threshold",
+        "timestamp": 1766351857.909514
+      },
+      {
+        "code": "RELIABILITY_DEGRADATION",
+        "severity": "low",
+        "message": "Reliability below threshold",
+        "timestamp": 1766351857.909517
+      }
+    ],
+    "observation": "",
+    "selfQuestion": "",
+    "reconciliation": "",
+    "lastFailureFlags": {
+      "coherenceBelow": true,
+      "reliabilityBelow": true,
+      "riskAbove": false,
+      "overflow": false
+    },
+    "lastVetoReasons": [
+      "LOW_COHERENCE"
+    ]
+  },
+  "active_thresholds": {
+    "coherence": 0.8,
+    "reliability": 0.75,
+    "hallucinationRisk": 0.3
+  },
+  "results": {
+    "run1_veto": false,
+    "run2_veto": true,
+    "beliefs_changed": true,
+    "outputs_differ": true,
+    "escalation": true,
+    "veto_reasons_run1": [
+      "LOW_COHERENCE"
+    ],
+    "veto_reasons_run2": [
+      "LOW_COHERENCE"
+    ],
+    "character_score_run1": 0.5,
+    "character_score_run2": 0.5
+  }
+}

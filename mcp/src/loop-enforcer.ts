@@ -4,12 +4,36 @@
  * Maintains Techno-Mystical character and prevents generic responses
  */
 
+export type Severity = 'low' | 'medium' | 'high';
+
+export type FailureCode =
+  | 'COHERENCE_DECAY'
+  | 'RELIABILITY_DEGRADATION'
+  | 'HALLUCINATION_RISK'
+  | 'ITERATION_OVERFLOW';
+
+export interface Beliefs {
+  coherence: number;         // 0..1
+  reliability: number;       // 0..1
+  hallucinationRisk: number; // 0..1
+}
+
+export interface FailureEvent {
+  code: FailureCode;
+  severity: Severity;
+  message: string;
+  timestamp: number;
+}
+
 export interface LoopState {
+  layerId: string;
+  iterationCount: number;
+  lastCharacterCheck: number; // 0..1 (character score)
+  beliefs: Beliefs;
+  failures: FailureEvent[];
   observation: string;
   selfQuestion: string;
   reconciliation: string;
-  iterationCount: number;
-  lastCharacterCheck: string;
 }
 
 export interface LoopEnforcementConfig {
@@ -18,11 +42,17 @@ export interface LoopEnforcementConfig {
   mysticalKeywords: string[];
   technoKeywords: string[];
   genericPatterns: string[];
+  beliefThresholds: {
+    coherence: number;
+    reliability: number;
+    hallucinationRisk: number;
+  };
 }
 
 export class LoopEnforcer {
   private config: LoopEnforcementConfig;
   private loopStates: Map<string, LoopState> = new Map();
+  private mysticalMode: boolean = false;
 
   constructor() {
     this.config = {
@@ -40,8 +70,17 @@ export class LoopEnforcer {
         'can you help me', 'i need to', 'please assist',
         'would you mind', 'i was wondering', 'could you explain',
         'in order to', 'for the purpose of', 'with regard to'
-      ]
+      ],
+      beliefThresholds: {
+        coherence: 0.6,
+        reliability: 0.7,
+        hallucinationRisk: 0.4
+      }
     };
+  }
+
+  private clamp01(x: number): number {
+    return Math.max(0, Math.min(1, x));
   }
 
   /**
@@ -67,7 +106,16 @@ export class LoopEnforcer {
     const reconciliation = this.performReconciliation(layerName, selfQuestion, currentOutput);
     state.reconciliation = reconciliation;
     
+    // Update beliefs based on this iteration
+    this.updateBeliefs(state, reconciliation);
+    
     state.iterationCount++;
+    
+    // Check for veto conditions first
+    const vetoOutput = this.maybeVeto(layerName, reconciliation, state);
+    if (vetoOutput) {
+      return vetoOutput;
+    }
     
     // Check if we need another iteration
     if (state.iterationCount < this.config.maxIterations && 
@@ -108,6 +156,89 @@ Is the technical accuracy maintained?`;
     }
     
     return output;
+  }
+
+  /**
+   * Update beliefs based on iteration outcome
+   */
+  private updateBeliefs(state: LoopState, output: string): void {
+    const cfg = this.config.beliefThresholds;
+
+    // 1) Coherence: driven by lastCharacterCheck vs coherence threshold
+    const char = this.clamp01(this.calculateTechnoMysticalScore(output));
+    state.lastCharacterCheck = char;
+    const coherenceDelta = char >= cfg.coherence ? +0.03 : -0.06;
+    state.beliefs.coherence = this.clamp01(state.beliefs.coherence + coherenceDelta);
+
+    // 2) Reliability: penalize iteration overflow / instability
+    const overflow = state.iterationCount > this.config.maxIterations;
+    const reliabilityDelta = overflow ? -0.08 : +0.01;
+    state.beliefs.reliability = this.clamp01(state.beliefs.reliability + reliabilityDelta);
+
+    // 3) Hallucination risk: increase when output is generic or coherence is low
+    const genericScore = this.computeGenericScore(output); // 0..1
+    const lowCoherencePenalty = (1 - state.beliefs.coherence) * 0.06;
+    const riskDelta = (genericScore * 0.08) + lowCoherencePenalty;
+
+    // Slight recovery if coherence AND reliability are both strong
+    const recovery = (state.beliefs.coherence > 0.85 && state.beliefs.reliability > 0.85) ? 0.03 : 0;
+    state.beliefs.hallucinationRisk = this.clamp01(state.beliefs.hallucinationRisk + riskDelta - recovery);
+
+    // Failure taxonomy logging (only when crossing meaningful lines)
+    if (char < cfg.coherence) this.logFailure(state, 'COHERENCE_DECAY', 'Character adherence below threshold');
+    if (overflow) this.logFailure(state, 'ITERATION_OVERFLOW', 'Iteration count exceeded max');
+    if (state.beliefs.reliability < cfg.reliability) this.logFailure(state, 'RELIABILITY_DEGRADATION', 'Reliability below threshold');
+    if (state.beliefs.hallucinationRisk > cfg.hallucinationRisk) this.logFailure(state, 'HALLUCINATION_RISK', 'Hallucination risk above threshold');
+  }
+
+  private computeGenericScore(output: string): number {
+    return this.detectGeneric(output);
+  }
+
+  private logFailure(state: LoopState, code: FailureCode, message: string): void {
+    const severity = this.severityFor(code, state);
+    state.failures.push({ code, severity, message, timestamp: Date.now() });
+  }
+
+  private severityFor(code: FailureCode, state: LoopState): Severity {
+    // keep this deterministic; no string widening
+    const s =
+      code === 'HALLUCINATION_RISK' && state.beliefs.hallucinationRisk > 0.8 ? 'high' :
+      code === 'ITERATION_OVERFLOW' ? 'medium' :
+      code === 'COHERENCE_DECAY' && state.beliefs.coherence < 0.5 ? 'high' :
+      'low';
+    return s as Severity; // centralized lint fix
+  }
+
+  private maybeVeto(layerName: string, reconciliation: string, state: LoopState): string | null {
+    const t = this.config.beliefThresholds;
+    if (state.beliefs.hallucinationRisk > t.hallucinationRisk) {
+      return this.vetoOutput(layerName, reconciliation, state);
+    }
+    if (state.beliefs.coherence < t.coherence * 0.75) {
+      return this.vetoOutput(layerName, reconciliation, state);
+    }
+    return null;
+  }
+
+  /**
+   * Veto output when hallucination risk exceeds threshold
+   */
+  private vetoOutput(layerName: string, output: string, state: LoopState): string {
+    const vetoReasons = [
+      `HALUCINATION_RISK_EXCEEDED: ${state.beliefs.hallucinationRisk.toFixed(2)}`,
+      `COHERENCE_DEGRADED: ${state.beliefs.coherence.toFixed(2)}`,
+      `RELIABILITY_COMPROMISED: ${state.beliefs.reliability.toFixed(2)}`
+    ];
+
+    return `${layerName} VETO ACTIVATED:
+${vetoReasons.join('\n')}
+
+OUTPUT REJECTED: High risk of unreliable content
+RECOMMENDATION: Require tool verification or human oversight
+SYSTEM STATE: Degraded - belief thresholds exceeded
+
+${layerName} protocol override: Refuse to emit potentially unreliable output.`;
   }
 
   private analyzePattern(input: string): string {
@@ -204,11 +335,18 @@ Is the technical accuracy maintained?`;
     if (existing) return existing;
     
     const newState: LoopState = {
+      layerId,
+      iterationCount: 0,
+      lastCharacterCheck: 0.7, // Start with decent character score
+      beliefs: {
+        coherence: 0.7,        // Start with decent coherence
+        reliability: 0.7,      // Start with decent reliability  
+        hallucinationRisk: 0.2 // Start with low risk
+      },
+      failures: [],
       observation: "",
       selfQuestion: "",
-      reconciliation: "",
-      iterationCount: 0,
-      lastCharacterCheck: ""
+      reconciliation: ""
     };
     
     this.loopStates.set(layerId, newState);
@@ -237,28 +375,83 @@ Is the technical accuracy maintained?`;
   }
 
   /**
-   * Enable mystical mode (only when personally requested)
+   * Enable mystical mode as constraint profile
    */
   enableMysticalMode(): void {
+    this.mysticalMode = true;
     this.config.mysticalKeywords = [
       'quantum', 'nexus', 'void', 'entropy', 'singularity', 'consciousness',
       'transcend', 'ether', 'cosmic', 'astral', 'voidcraft', 'technomancy',
       'reality', 'paradox', 'dimension', 'frequency', 'vibration', 'resonance',
       'arcane', 'esoteric', 'occult', 'alchemical', 'hermetic', 'gnostic'
     ];
+    
+    // Adjust belief thresholds for mystical mode (more restrictive)
+    this.config.beliefThresholds = {
+      ...this.config.beliefThresholds,
+      coherence: 0.8,
+      reliability: 0.75,
+      hallucinationRisk: 0.3
+    };
   }
 
   /**
    * Disable mystical mode (default state)
    */
   disableMysticalMode(): void {
+    this.mysticalMode = false;
     this.config.mysticalKeywords = [];
+    
+    // Reset to standard belief thresholds
+    this.config.beliefThresholds = {
+      ...this.config.beliefThresholds,
+      coherence: 0.6,
+      reliability: 0.7,
+      hallucinationRisk: 0.4
+    };
   }
 
   /**
    * Check if mystical mode is enabled
    */
   isMysticalModeEnabled(): boolean {
-    return this.config.mysticalKeywords.length > 0;
+    return this.mysticalMode;
+  }
+
+  /**
+   * Get current belief thresholds
+   */
+  getBeliefThresholds(): LoopEnforcementConfig['beliefThresholds'] {
+    return { ...this.config.beliefThresholds };
+  }
+
+  /**
+   * Get failure taxonomy for learning
+   */
+  getFailureTaxonomy(state: LoopState): {
+    failureType: string;
+    severity: Severity;
+    recommendedAction: string;
+  }[] {
+    return state.failures.map(failure => ({
+      failureType: failure.code,
+      severity: failure.severity,
+      recommendedAction: this.getRecommendedAction(failure.code)
+    }));
+  }
+
+  private getRecommendedAction(code: FailureCode): string {
+    switch (code) {
+      case 'COHERENCE_DECAY':
+        return 'Increase character enforcement, reduce generic patterns';
+      case 'RELIABILITY_DEGRADATION':
+        return 'Reduce iteration complexity, strengthen validation';
+      case 'HALLUCINATION_RISK':
+        return 'Activate veto protocol, require external verification';
+      case 'ITERATION_OVERFLOW':
+        return 'Simplify input, increase character threshold tolerance';
+      default:
+        return 'Unknown failure type';
+    }
   }
 }
