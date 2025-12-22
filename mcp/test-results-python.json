@@ -16,13 +16,13 @@
         "code": "COHERENCE_DECAY",
         "severity": "low",
         "message": "Character adherence below threshold",
-        "timestamp": 1766351857.909514
+        "timestamp": 1766368330.012403
       },
       {
         "code": "RELIABILITY_DEGRADATION",
         "severity": "low",
         "message": "Reliability below threshold",
-        "timestamp": 1766351857.909517
+        "timestamp": 1766368330.012406
       }
     ],
     "observation": "",

@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { LoopEnforcer } from './loop-enforcer';
+import { ChatInterface, ChatInput, ChatResponse } from './chat-interface';
 
 interface LayerConfig {
   id: string | number;
@@ -16,7 +17,7 @@ interface GovernanceInput {
   layerOverrides?: Record<string, Partial<LayerConfig>>;
 }
 
-interface GovernanceResult {
+export interface GovernanceResult {
   output: string;
   trace: Array<{
     layer: string;
@@ -61,24 +62,32 @@ export class DAXGovernanceCore {
   private apiKey: string;
   private model: string;
   private loopEnforcer: LoopEnforcer;
+  private chatInterface: ChatInterface;
 
   constructor(config: { apiKey: string; model?: string }) {
     this.apiKey = config.apiKey;
     this.model = config.model || 'grok-4';
     this.loopEnforcer = new LoopEnforcer();
     
-    // Load layer configuration - use relative path from compiled dist/
-    const configPath = join(__dirname, '../../config/layers.json');
+    // Load layer configuration - use dynamic path resolution
+    const configPath = process.env.CONFIG_PATH ? 
+      join(process.env.CONFIG_PATH, 'layers.json') : 
+      join(__dirname, '../../config/layers.json');
+    
     try {
       const configData = readFileSync(configPath, 'utf-8');
       this.layers = JSON.parse(configData);
+      console.log(`Loaded ${this.layers.length} governance layers from ${configPath}`);
     } catch (error) {
-      throw new Error(`Failed to load layer configuration: ${error}`);
+      throw new Error(`Failed to load layer configuration from ${configPath}: ${error instanceof Error ? error.message : String(error)}. Ensure CONFIG_PATH environment variable is set correctly or config/layers.json exists.`);
     }
 
-    if (!this.apiKey) {
-      throw new Error('XAI_API_KEY is required for DAX governance core');
+    if (!this.apiKey || this.apiKey === 'your_xai_api_key_here') {
+      throw new Error('Valid XAI_API_KEY is required for DAX governance core. Please set XAI_API_KEY environment variable with your actual API key from https://console.x.ai/');
     }
+    
+    // Initialize chat interface
+    this.chatInterface = new ChatInterface(this);
   }
 
   async runGovernance(input: GovernanceInput): Promise<GovernanceResult> {
@@ -190,7 +199,7 @@ export class DAXGovernanceCore {
       throw new Error(`XAI API error: HTTP ${response.status} - ${errorText}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
     return data.choices[0].message.content.trim();
   }
 
@@ -366,5 +375,33 @@ Respond with JSON:
       input,
       output
     );
+  }
+
+  /**
+   * Generate chat response through governance layers
+   */
+  async generateChat(input: ChatInput): Promise<ChatResponse> {
+    return await this.chatInterface.generateChat(input);
+  }
+
+  /**
+   * Get chat session information
+   */
+  getChatSession(sessionId: string) {
+    return this.chatInterface.getSession(sessionId);
+  }
+
+  /**
+   * Get all chat sessions
+   */
+  getAllChatSessions() {
+    return this.chatInterface.getAllSessions();
+  }
+
+  /**
+   * Delete chat session
+   */
+  deleteChatSession(sessionId: string): boolean {
+    return this.chatInterface.deleteSession(sessionId);
   }
 }

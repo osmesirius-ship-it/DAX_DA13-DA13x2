@@ -99,6 +99,62 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ['input'],
         },
       },
+      {
+        name: 'generate_chat',
+        description: 'Generate chat response through DAX governance layers',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            message: {
+              type: 'string',
+              description: 'Chat message to process through governance layers',
+            },
+            sessionId: {
+              type: 'string',
+              description: 'Chat session ID for conversation continuity',
+            },
+            includeGovernance: {
+              type: 'boolean',
+              description: 'Include governance reasoning in response',
+              default: false,
+            },
+            context: {
+              type: 'array',
+              items: { type: 'string' },
+              description: 'Additional context for chat processing',
+            },
+          },
+          required: ['message'],
+        },
+      },
+      {
+        name: 'get_chat_session',
+        description: 'Get information about a chat session',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            sessionId: {
+              type: 'string',
+              description: 'Chat session ID',
+            },
+          },
+          required: ['sessionId'],
+        },
+      },
+      {
+        name: 'delete_chat_session',
+        description: 'Delete a chat session',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            sessionId: {
+              type: 'string',
+              description: 'Chat session ID to delete',
+            },
+          },
+          required: ['sessionId'],
+        },
+      },
     ],
   };
 });
@@ -140,9 +196,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
       }
 
       case 'validate_governance_compliance': {
-        const validation = await daxCore.validateCompliance({
-          input: args.input as string,
-          policyLevel: args.policy_level as string || 'moderate',
+        const validation = await daxCore.validateAgainstPolicies({
+          request: args.input as string,
+          policySet: args.policy_set as string || 'default',
         });
         
         return {
@@ -150,6 +206,50 @@ server.setRequestHandler(CallToolRequestSchema, async (request: any) => {
             {
               type: 'text',
               text: JSON.stringify(validation, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'generate_chat': {
+        const chatResponse = await daxCore.generateChat({
+          message: args.message as string,
+          sessionId: args.sessionId as string,
+          includeGovernance: args.includeGovernance as boolean || false,
+          context: args.context as string[] || [],
+        });
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(chatResponse, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'get_chat_session': {
+        const session = daxCore.getChatSession(args.sessionId as string);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(session, null, 2),
+            },
+          ],
+        };
+      }
+
+      case 'delete_chat_session': {
+        const deleted = daxCore.deleteChatSession(args.sessionId as string);
+        
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({ deleted, sessionId: args.sessionId }, null, 2),
             },
           ],
         };

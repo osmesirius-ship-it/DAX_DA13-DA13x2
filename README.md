@@ -3,16 +3,34 @@ DA-13 + DA-X Recursive Governance Core – the first working cognitive immune sy
 
 ## Quick Start
 
-### MCP Server Integration
-The project now includes a full Model Context Protocol (MCP) server for seamless integration with AI clients:
-
+### 1. Environment Setup
 ```bash
-cd mcp
+# Clone and navigate to project
+git clone https://github.com/osmesirius-ship-it/DAX_DA13-DA13x2.git
+cd DAX_DA13-DA13x2
+
+# Set up environment
+cp .env.example .env
+# Edit .env with your XAI_API_KEY from https://console.x.ai/
+
+# Install dependencies
 npm install
-npm run build
-cp .env.example .env  # Add your XAI API key
+
+# Create required directories
+mkdir -p data/beliefs logs temp
 ```
 
+### 2. System Startup
+```bash
+# Use the startup script (recommended)
+./start-dax.sh
+
+# Or manual startup
+npm run build
+node dist/index.js
+```
+
+### 3. MCP Server Integration
 Configure in Claude Desktop:
 ```json
 {
