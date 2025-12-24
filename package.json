@@ -1,0 +1,25 @@
+{
+  "name": "dax-da13-governance-core",
+  "version": "0.1.0",
+  "description": "DA-13 + DA-X governance core runtime.",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write \"src/**/*.ts\" \"examples/**/*.ts\" \"tests/**/*.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3",
+    "vitest": "^1.4.0"
+  }
+}

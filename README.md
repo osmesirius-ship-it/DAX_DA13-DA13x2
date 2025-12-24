@@ -74,6 +74,61 @@ The DAX system implements 14 sequential governance layers:
 - **[docs/](docs/)**: Integration documentation
 - **[tests/](tests/)**: Unit tests
 
+## Governance Core Runtime (TypeScript)
+
+This repository now includes a standalone governance runtime with a dependency-aware
+stage engine, metrics collection, and a lightweight dashboard server.
+
+### Install
+
+```bash
+npm install
+```
+
+### Run a Governance Pass
+
+```ts
+import { GovernanceEngine, MetricsCollector } from "./src";
+
+const metrics = new MetricsCollector();
+const engine = new GovernanceEngine({
+  stages: [{ id: "ingest", run: ({ input }) => ({ input }) }],
+  metricsCollector: metrics,
+});
+
+const result = await engine.run({ payload: "example" });
+console.log(result);
+```
+
+### Start the Dashboard Server
+
+```ts
+import { DashboardServer, GovernanceEngine, MetricsCollector } from "./src";
+
+const metrics = new MetricsCollector();
+const engine = new GovernanceEngine({
+  stages: [{ id: "one", run: ({ input }) => input }],
+  metricsCollector: metrics,
+});
+
+await engine.run({ ready: true });
+
+const dashboard = new DashboardServer({
+  metricsCollector: metrics,
+  getRuns: () => engine.getHistory(),
+});
+
+const port = await dashboard.start(3000);
+console.log(`Dashboard running on http://localhost:${port}`);
+```
+
+### Examples
+
+```bash
+npx ts-node examples/basic-run.ts
+npx ts-node examples/dashboard-server.ts
+```
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file.
